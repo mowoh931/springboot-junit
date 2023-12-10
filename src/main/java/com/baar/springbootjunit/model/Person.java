@@ -12,8 +12,14 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Person {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  int id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  Integer id;
   String name;
+
   String city;
+  public Person(String name, String city) {
+    this.name = name;
+    this.city = city;
+  }
+
 }
