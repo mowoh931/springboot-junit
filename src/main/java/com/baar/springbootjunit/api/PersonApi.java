@@ -13,36 +13,36 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/persons")
 public class PersonApi {
 
-  private   PersonServiceImpl personService;
+  @Autowired private PersonServiceImpl service;
 
-  public PersonApi(PersonServiceImpl personService) {
-    this.personService = personService;
+  public PersonApi(PersonServiceImpl service) {
+    this.service = service;
   }
 
   @PostMapping("/save")
   public Person createPerson(@RequestBody PersonDto personDto) throws PersonExistsException {
-    return personService.createPerson(personDto);
+    return service.createPerson(personDto);
   }
 
   @GetMapping("/get/all")
   public List<PersonDto> getPersons() {
-    return personService.getPersons();
+    return service.getPersons();
   }
 
   @GetMapping("/get/one/person/id/{id}")
   public PersonDto getPerson(@PathVariable Integer id) throws PersonNotFoundException {
-    return personService.getPerson(id);
+    return service.getPerson(id);
   }
 
   @PutMapping("/update/person/id/{id}")
   public void updatePerson(@PathVariable Integer id, @RequestBody PersonDto personDto)
       throws PersonNotFoundException {
-    personService.updatePerson(id, personDto);
+    service.updatePerson(id, personDto);
   }
 
   @DeleteMapping("/delete/person/id/{id}")
   public String deletePerson(@PathVariable Integer id) throws PersonNotFoundException {
-    personService.deletePerson(id);
+    service.deletePerson(id);
     return "Deleted person with id: " + id;
   }
 }
