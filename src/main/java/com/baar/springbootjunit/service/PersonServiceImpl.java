@@ -5,15 +5,12 @@ import com.baar.springbootjunit.exception.PersonExistsException;
 import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.repository.PersonRepository;
+import com.baar.springbootjunit.util.ExceptionMessage;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import com.baar.springbootjunit.util.ExceptionMessage;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service(value = "service")
