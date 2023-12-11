@@ -11,9 +11,4 @@ public class PersonDto {
   Integer id;
   String name;
   String city;
-
-  public PersonDto(String name, String city) {
-    this.name = name;
-    this.city = city;
-  }
 }

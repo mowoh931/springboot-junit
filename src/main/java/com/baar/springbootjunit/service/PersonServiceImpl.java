@@ -8,6 +8,8 @@ import com.baar.springbootjunit.repository.PersonRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.baar.springbootjunit.util.ExceptionMessage;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Service;
 // @Transactional
 public class PersonServiceImpl implements PersonService {
 
-  @Autowired private PersonRepository repository;
+ private PersonRepository repository;
 
   private  ModelMapper mapper = new ModelMapper();
 
@@ -33,9 +35,9 @@ public class PersonServiceImpl implements PersonService {
 
     Optional<Person> optional = repository.findById(personDto.getId());
     if (optional.isPresent()) {
-      throw new PersonExistsException("Person already exists");
+      throw new PersonExistsException(ExceptionMessage.PERSON_EXISTS);
     }
-    Person person = new Person(personDto.getName(), personDto.getCity());
+    Person person = new Person(personDto.getId(), personDto.getName(), personDto.getCity());
     repository.save(person);
     return person;
   }
@@ -43,8 +45,8 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public List<PersonDto> getPersons() {
     return repository.findAll().stream()
-        .map((element) -> mapper.map(element, PersonDto.class))
-        .collect(Collectors.toList());
+        .map(element -> mapper.map(element, PersonDto.class))
+        .toList();
   }
 
   @Override
@@ -52,7 +54,7 @@ public class PersonServiceImpl implements PersonService {
     return repository
         .findById(id)
         .map(person -> mapper.map(person, PersonDto.class))
-        .orElseThrow(() -> new PersonNotFoundException("person not found"));
+        .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND));
   }
 
   @Override
@@ -61,7 +63,7 @@ public class PersonServiceImpl implements PersonService {
             repository
             .findById(id)
             .map(person -> mapper.map(personDto, Person.class))
-            .orElseThrow(() -> new PersonNotFoundException("person not found")));
+            .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND)));
     LOGGER.info("Updated person successfully {}", id);
   }
 
@@ -70,7 +72,7 @@ public class PersonServiceImpl implements PersonService {
     repository.delete(
             repository
             .findById(id)
-            .orElseThrow(() -> new PersonNotFoundException("person not found")));
+            .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND)));
     LOGGER.info("Deleted person successfully {}", id);
   }
 }

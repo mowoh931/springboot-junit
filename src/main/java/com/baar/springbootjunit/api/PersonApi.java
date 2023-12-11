@@ -6,14 +6,13 @@ import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.service.PersonServiceImpl;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/persons")
 public class PersonApi {
 
-  @Autowired private PersonServiceImpl service;
+  private PersonServiceImpl service;
 
   public PersonApi(PersonServiceImpl service) {
     this.service = service;
