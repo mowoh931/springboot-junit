@@ -26,6 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class PersonServiceImplTest {
+  public PersonServiceImplTest() {
+  }
 
   @Mock private PersonRepository repository;
 
@@ -61,9 +63,9 @@ public class PersonServiceImplTest {
 
     List<PersonDto> actual = service.getPersons();
 
-    Assert.assertEquals(expected, service.getPersons());
-    Assert.assertEquals(expected.size(), actual.size());
-    Assert.assertEquals(expected.get(0), actual.get(0));
+    Assert.assertEquals("Expected equals actual",expected, service.getPersons());
+    Assert.assertEquals("Expected equals actual",expected.size(), actual.size());
+    Assert.assertEquals("Expected equals actual",expected.get(0), actual.get(0));
   }
 
   @Test
@@ -72,7 +74,7 @@ public class PersonServiceImplTest {
     Mockito.when(repository.findById(1)).thenReturn(Optional.of(john));
 
     PersonDto actual = service.getPerson(1);
-    Assert.assertEquals(modelMapper.map(john, PersonDto.class), actual);
+    Assert.assertEquals("Expected equals actual",modelMapper.map(john, PersonDto.class), actual);
   }
 
   @Test

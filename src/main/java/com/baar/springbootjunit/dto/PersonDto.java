@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class PersonDto {
-  Integer id;
-  String name;
-  String city;
+  private Integer id;
+  private String name;
+  private String city;
 }
