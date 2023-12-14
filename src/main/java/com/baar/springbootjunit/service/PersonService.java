@@ -7,14 +7,14 @@ import com.baar.springbootjunit.model.Person;
 import java.util.List;
 
 public interface PersonService {
-
   Person createPerson(PersonDto personDto) throws PersonExistsException;
 
   List<PersonDto> getPersons();
 
+  PersonDto getPerson(Integer id) throws PersonNotFoundException;
 
-  PersonDto  getPerson(Integer id) throws PersonNotFoundException;
-  void  updatePerson(Integer id ,PersonDto personDto) throws PersonNotFoundException;
+  PersonDto findByNameAndCity(String name, String city) throws PersonNotFoundException;
+  void updatePerson(Integer id, PersonDto personDto) throws PersonNotFoundException;
 
-  void  deletePerson(Integer id) throws PersonNotFoundException;
+  void deletePerson(Integer id) throws PersonNotFoundException;
 }

@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 // @Transactional
 public class PersonServiceImpl implements PersonService {
 
- private PersonRepository repository;
+  private PersonRepository repository;
 
-  private  ModelMapper mapper = new ModelMapper();
+  private ModelMapper mapper = new ModelMapper();
 
   private final Logger LOGGER = LoggerFactory.getLogger(PersonServiceImpl.class);
 
@@ -55,9 +55,17 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
+  public PersonDto findByNameAndCity(String name, String city) throws PersonNotFoundException {
+    return repository
+        .findByNameIgnoreCaseAndCityIgnoreCase(name, city)
+        .map((element) -> mapper.map(element, PersonDto.class))
+        .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND));
+  }
+
+  @Override
   public void updatePerson(Integer id, PersonDto personDto) throws PersonNotFoundException {
     repository.save(
-            repository
+        repository
             .findById(id)
             .map(person -> mapper.map(personDto, Person.class))
             .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND)));
@@ -67,7 +75,7 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public void deletePerson(Integer id) throws PersonNotFoundException {
     repository.delete(
-            repository
+        repository
             .findById(id)
             .orElseThrow(() -> new PersonNotFoundException(ExceptionMessage.PERSON_NOT_FOUND)));
     LOGGER.info("Deleted person successfully {}", id);

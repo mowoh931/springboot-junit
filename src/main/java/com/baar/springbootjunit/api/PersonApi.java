@@ -6,6 +6,8 @@ import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.service.PersonServiceImpl;
 import java.util.List;
+
+import jakarta.websocket.server.PathParam;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,6 +35,12 @@ public class PersonApi {
     return service.getPerson(id);
   }
 
+  @GetMapping("/get/one/person/name/city/{name}/{city}")
+  PersonDto findByNameAndCity(@PathParam("name") String name, @PathParam("city") String city)
+      throws PersonNotFoundException {
+
+  return   service.findByNameAndCity(name, city);
+  }
   @PutMapping("/update/person/id/{id}")
   public void updatePerson(@PathVariable Integer id, @RequestBody PersonDto personDto)
       throws PersonNotFoundException {

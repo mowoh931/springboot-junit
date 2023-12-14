@@ -13,17 +13,18 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.context.SpringBootTest;
 
 // @ExtendWith(MockitoExtension.class)
 
-@SpringBootTest
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class PersonServiceImplTest {
   public PersonServiceImplTest() {
@@ -37,6 +38,8 @@ public class PersonServiceImplTest {
 
   @Before
   public void setUp() throws Exception {
+
+    MockitoAnnotations.openMocks(this);
   }
 
   @Test
@@ -66,6 +69,7 @@ public class PersonServiceImplTest {
     Assert.assertEquals("Expected equals actual",expected, service.getPersons());
     Assert.assertEquals("Expected equals actual",expected.size(), actual.size());
     Assert.assertEquals("Expected equals actual",expected.get(0), actual.get(0));
+
   }
 
   @Test
