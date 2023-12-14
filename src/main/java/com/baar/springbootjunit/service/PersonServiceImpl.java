@@ -6,6 +6,9 @@ import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.repository.PersonRepository;
 import com.baar.springbootjunit.util.ExceptionMessage;
+
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
@@ -14,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service(value = "service")
-// @Transactional
+@Transactional
 public class PersonServiceImpl implements PersonService {
 
   private PersonRepository repository;

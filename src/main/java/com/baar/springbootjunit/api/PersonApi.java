@@ -5,9 +5,11 @@ import com.baar.springbootjunit.exception.PersonExistsException;
 import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.service.PersonServiceImpl;
-import java.util.List;
-
 import jakarta.websocket.server.PathParam;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,36 +22,47 @@ public class PersonApi {
     this.service = service;
   }
 
-  @PostMapping("/save")
+  @PostMapping(
+      value = "/save",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public Person createPerson(@RequestBody PersonDto personDto) throws PersonExistsException {
     return service.createPerson(personDto);
   }
 
   @GetMapping("/get/all")
-  public List<PersonDto> getPersons() {
-    return service.getPersons();
+  public ResponseEntity<List<PersonDto>> getPersons() {
+    return new ResponseEntity<>(service.getPersons(), HttpStatus.OK);
   }
 
   @GetMapping("/get/one/person/id/{id}")
-  public PersonDto getPerson(@PathVariable Integer id) throws PersonNotFoundException {
-    return service.getPerson(id);
+  public ResponseEntity<PersonDto> getPerson(@PathVariable Integer id)
+      throws PersonNotFoundException {
+    return new ResponseEntity<>(service.getPerson(id), HttpStatus.OK);
   }
 
   @GetMapping("/get/one/person/name/city/{name}/{city}")
-  PersonDto findByNameAndCity(@PathParam("name") String name, @PathParam("city") String city)
+  public ResponseEntity<PersonDto> findByNameAndCity(
+      @PathParam("name") String name, @PathParam("city") String city)
       throws PersonNotFoundException {
 
-  return   service.findByNameAndCity(name, city);
+    return new ResponseEntity<>(service.findByNameAndCity(name, city), HttpStatus.OK);
   }
-  @PutMapping("/update/person/id/{id}")
-  public void updatePerson(@PathVariable Integer id, @RequestBody PersonDto personDto)
-      throws PersonNotFoundException {
+
+  @PutMapping(
+      value = "/update/person/id/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Void> updatePerson(
+      @PathVariable Integer id, @RequestBody PersonDto personDto) throws PersonNotFoundException {
     service.updatePerson(id, personDto);
+    return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @DeleteMapping("/delete/person/id/{id}")
-  public String deletePerson(@PathVariable Integer id) throws PersonNotFoundException {
+  public ResponseEntity<String> deletePerson(@PathVariable Integer id)
+      throws PersonNotFoundException {
     service.deletePerson(id);
-    return "Deleted person with id: " + id;
+    return new ResponseEntity<>("Deleted person with id: " + id, HttpStatus.OK);
   }
 }
