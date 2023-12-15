@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/persons")
+@CrossOrigin(value = "*")
 public class PersonApi {
 
   private PersonServiceImpl service;
@@ -26,8 +27,9 @@ public class PersonApi {
       value = "/save",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public Person createPerson(@RequestBody PersonDto personDto) throws PersonExistsException {
-    return service.createPerson(personDto);
+  public ResponseEntity<Person> createPerson(@RequestBody PersonDto personDto)
+      throws PersonExistsException {
+    return new ResponseEntity<>(service.createPerson(personDto), HttpStatus.CREATED);
   }
 
   @GetMapping("/get/all")
@@ -41,7 +43,7 @@ public class PersonApi {
     return new ResponseEntity<>(service.getPerson(id), HttpStatus.OK);
   }
 
-  @GetMapping("/get/one/person/name/city/{name}/{city}")
+  @GetMapping("/get/one/person/name/city/{name}{city}")
   public ResponseEntity<PersonDto> findByNameAndCity(
       @PathParam("name") String name, @PathParam("city") String city)
       throws PersonNotFoundException {
