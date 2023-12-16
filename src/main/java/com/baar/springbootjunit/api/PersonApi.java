@@ -32,22 +32,23 @@ public class PersonApi {
     return new ResponseEntity<>(service.createPerson(personDto), HttpStatus.CREATED);
   }
 
-  @GetMapping("/get/all")
+  @GetMapping(value = "/get/all", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<PersonDto>> getPersons() {
     return new ResponseEntity<>(service.getPersons(), HttpStatus.OK);
   }
 
-  @GetMapping("/get/one/person/id/{id}")
+  @GetMapping(value = "/get/one/person/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PersonDto> getPerson(@PathVariable Integer id)
       throws PersonNotFoundException {
     return new ResponseEntity<>(service.getPerson(id), HttpStatus.OK);
   }
 
-  @GetMapping("/get/one/person/name/city/{name}{city}")
+  @GetMapping(
+      value = "/get/one/person/name/city/{name}{city}",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PersonDto> findByNameAndCity(
       @PathParam("name") String name, @PathParam("city") String city)
       throws PersonNotFoundException {
-
     return new ResponseEntity<>(service.findByNameAndCity(name, city), HttpStatus.OK);
   }
 
@@ -61,7 +62,7 @@ public class PersonApi {
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
-  @DeleteMapping("/delete/person/id/{id}")
+  @DeleteMapping(value = "/delete/person/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> deletePerson(@PathVariable Integer id)
       throws PersonNotFoundException {
     service.deletePerson(id);
