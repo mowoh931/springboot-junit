@@ -6,9 +6,7 @@ import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.repository.PersonRepository;
 import com.baar.springbootjunit.util.ExceptionMessage;
-
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
@@ -20,11 +18,9 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class PersonServiceImpl implements PersonService {
 
-  private PersonRepository repository;
-
-  private ModelMapper mapper = new ModelMapper();
-
   private final Logger LOGGER = LoggerFactory.getLogger(PersonServiceImpl.class);
+  private PersonRepository repository;
+  private ModelMapper mapper = new ModelMapper();
 
   public PersonServiceImpl(PersonRepository repository) {
     this.repository = repository;

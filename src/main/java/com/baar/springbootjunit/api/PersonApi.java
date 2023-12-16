@@ -44,10 +44,11 @@ public class PersonApi {
   }
 
   @GetMapping(
-      value = "/get/one/person/name/city/{name}{city}",
+      value = "/get/one/person/name/city/{name}/{city}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PersonDto> findByNameAndCity(
-      @PathParam("name") String name, @PathParam("city") String city)
+      @PathParam(value = "name") String name, @PathParam(value = "city") String city)
       throws PersonNotFoundException {
     return new ResponseEntity<>(service.findByNameAndCity(name, city), HttpStatus.OK);
   }

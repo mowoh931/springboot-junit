@@ -6,10 +6,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import com.baar.springbootjunit.dto.PersonDto;
-import com.baar.springbootjunit.exception.PersonNotFoundException;
 import com.baar.springbootjunit.model.Person;
 import com.baar.springbootjunit.service.PersonServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +25,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -33,15 +34,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(PersonApi.class)
 class PersonApiTest {
-  @Autowired private MockMvc mockMvc;
-
-  @MockBean private PersonServiceImpl service;
-
-  @Autowired private ObjectMapper objectMapper;
-
-  @InjectMocks private PersonApi personApi;
-
   ModelMapper modelMapper = new ModelMapper();
+  @Autowired private MockMvc mockMvc;
+  @MockBean private PersonServiceImpl service;
+  @Autowired private ObjectMapper objectMapper;
+  @InjectMocks private PersonApi personApi;
 
   @BeforeEach
   public void setUp() {
@@ -61,7 +58,7 @@ class PersonApiTest {
     Assertions.assertNotNull(responseBody);
     assertEquals(HttpStatus.CREATED.value(), responseCode);
 
-    String url = "http://localhost:8081/api/persons/save";
+    String url = "/api/persons/save";
     ResultActions resultActions =
         mockMvc.perform(
             post(url)
@@ -69,8 +66,8 @@ class PersonApiTest {
                 .content(objectMapper.writeValueAsString(personDto)));
 
     resultActions.andExpect(MockMvcResultMatchers.status().isCreated());
-
-    responseCode = resultActions.andReturn().getResponse().getStatus();
+    MvcResult mvcResult = resultActions.andReturn();
+    responseCode = mvcResult.getResponse().getStatus();
     assertEquals(HttpStatus.CREATED.value(), responseCode);
   }
 
@@ -78,13 +75,14 @@ class PersonApiTest {
   void getPerson() throws Exception {
     Person person = new Person(1, "John", "John's City");
     PersonDto personDto = new ModelMapper().map(person, PersonDto.class);
+
     Mockito.when(service.getPerson(1)).thenReturn(personDto);
 
     ResponseEntity<PersonDto> responseEntity = personApi.getPerson(1);
     assertEquals(personDto, responseEntity.getBody());
     Assertions.assertNotEquals(personApi.getPerson(2), responseEntity);
 
-    String url = "http://localhost:8081/api/persons/get/one/person/id/";
+    String url = "/api/persons/get/one/person/id/";
 
     int id = 1;
     ResultActions resultActions =
@@ -94,36 +92,52 @@ class PersonApiTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(personDto)));
 
-    int status = resultActions.andReturn().getResponse().getStatus();
+    MvcResult mvcResult = resultActions.andReturn();
 
-    assertEquals(HttpStatus.OK.value(), status);
-    Assertions.assertNotEquals(HttpStatus.CREATED.value(), status);
+    int responseCode = mvcResult.getResponse().getStatus();
 
-    String c1 = (resultActions.andReturn().getResponse().getContentAsString());
-    String c2 = objectMapper.writeValueAsString(personDto);
+    assertEquals(HttpStatus.OK.value(), responseCode);
+    Assertions.assertNotEquals(HttpStatus.CREATED.value(), responseCode);
   }
 
   @Test
-  public void findByNameAndCity() {}
+  public void findByNameAndCity() throws Exception {
+    Person person = new Person(1, "John", "John's City");
+    PersonDto personDto = modelMapper.map(person, PersonDto.class);
+    Mockito.when(service.findByNameAndCity("John", "John's City")).thenReturn(personDto);
+
+    ResponseEntity<PersonDto> responseEntity = personApi.findByNameAndCity("John", "John's City");
+    PersonDto responseBody = responseEntity.getBody();
+    assertEquals(personDto, responseBody, "Asserts that response equals expected.");
+
+    // TODO: 12/16/2023
+    String url = "";
+    ResultActions resultActions =
+        mockMvc.perform(
+            get(url)
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+  }
 
   @Test
   void updatePerson() throws Exception {
 
     Person person = new Person(1, "John", "John's City");
     PersonDto personDto = new PersonDto(1, "John", "John's New City");
-    //    when(service.getPerson(1)).thenReturn(personDto);
-    //    service.updatePerson(1, personDto);
-    //    verify(service, atLeastOnce()).updatePerson(1, personDto);
-    String url = "/api/persons/update/person/id/";
-    System.out.println(
-        mockMvc
-            .perform(
-                put(url + 1)
-                    .content(objectMapper.writeValueAsString(personDto))
-                    .contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.status().isCreated())
-            .andReturn()
-            .getModelAndView());
+    when(service.getPerson(1)).thenReturn(personDto);
+    service.updatePerson(1, personDto);
+    verify(service, atLeastOnce()).updatePerson(1, personDto);
+
+    String url = "/api/persons/update/person/id/1";
+    ResultActions resultActions =
+        mockMvc.perform(
+            put(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(personDto)));
+    MvcResult mvcResult = resultActions.andReturn();
+    int responseCode = mvcResult.getResponse().getStatus();
+    Assertions.assertEquals(HttpStatus.CREATED.value(), responseCode);
+    System.out.println(mvcResult.getResponse().getStatus());
   }
 
   @Test
@@ -132,18 +146,36 @@ class PersonApiTest {
     PersonDto personDto = new ModelMapper().map(person, PersonDto.class);
     Mockito.when(service.getPerson(1)).thenReturn(personDto);
 
-    // TODO: 12/14/2023
     service.deletePerson(1);
     Mockito.verify(service, atLeastOnce()).deletePerson(1);
     Assertions.assertAll(() -> personApi.deletePerson(1));
 
     String url = "/api/persons/delete/person/id/1";
-    MvcResult c =
-        mockMvc
-            .perform(
-                delete(url)
-                    .contentType("application/json")
-                    .content(objectMapper.writeValueAsString(person)))
-            .andReturn();
+    ResultActions resultActions = mockMvc.perform(delete(url).contentType("application/json"));
+
+    MvcResult mvcResult = resultActions.andReturn();
+    int statusCode = mvcResult.getResponse().getStatus();
+    Assertions.assertEquals(HttpStatus.OK.value(), statusCode);
+  }
+
+  @Test
+  public void getPersons() throws Exception {
+
+    Person person = new Person(1, "John", "John's City");
+    PersonDto personDto = new PersonDto(1, "John", "John's City");
+    List<PersonDto> persons = List.of(personDto);
+    when(service.getPersons()).thenReturn(persons);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            get("/api/persons/get/all")
+                .content(objectMapper.writeValueAsString(persons))
+                .contentType(MediaType.APPLICATION_JSON));
+
+    MockHttpServletResponse response = resultActions.andReturn().getResponse();
+    int statusCode = response.getStatus();
+    Assertions.assertEquals(HttpStatus.OK.value(), statusCode);
+    Assertions.assertEquals(
+        objectMapper.writeValueAsString(persons), response.getContentAsString());
   }
 }

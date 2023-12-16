@@ -29,13 +29,12 @@ import org.modelmapper.ModelMapper;
  */
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceImplTest {
-  public PersonServiceImplTest() {}
-
+  ModelMapper modelMapper = new ModelMapper();
   @Mock private PersonRepository repository;
 
   @InjectMocks private PersonServiceImpl service;
 
-  ModelMapper modelMapper = new ModelMapper();
+  public PersonServiceImplTest() {}
 
   @BeforeEach
   public void setUp() throws Exception {
