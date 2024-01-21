@@ -33,3 +33,6 @@ build/
 .vscode/
 !/Test Results - SpringbootJunitApplicationTests.html
 /.camel-jbang/
+/.fastRequest/
+/.fastRequest/
+/htmlReport/

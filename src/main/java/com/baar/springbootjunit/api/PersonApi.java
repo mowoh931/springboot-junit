@@ -45,7 +45,6 @@ public class PersonApi {
 
   @GetMapping(
       value = "/get/one/person/name/city/{name}/{city}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PersonDto> findByNameAndCity(
       @PathParam(value = "name") String name, @PathParam(value = "city") String city)
@@ -69,4 +68,6 @@ public class PersonApi {
     service.deletePerson(id);
     return new ResponseEntity<>("Deleted person with id: " + id, HttpStatus.OK);
   }
+
+
 }

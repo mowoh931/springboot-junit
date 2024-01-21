@@ -1,7 +1,6 @@
 package com.baar.springbootjunit.service;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.baar.springbootjunit.dto.PersonDto;
@@ -12,7 +11,6 @@ import com.baar.springbootjunit.repository.PersonRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +26,8 @@ import org.modelmapper.ModelMapper;
  * Used when testing the Junit version <4
  */
 @ExtendWith(MockitoExtension.class)
-public class PersonServiceImplTest {
-  ModelMapper modelMapper = new ModelMapper();
+class PersonServiceImplTest {
+  private ModelMapper modelMapper = new ModelMapper();
   @Mock private PersonRepository repository;
 
   @InjectMocks private PersonServiceImpl service;
@@ -43,19 +41,28 @@ public class PersonServiceImplTest {
   }
 
   @Test
-  public void createPerson() throws PersonNotFoundException, PersonExistsException {
+  void createPerson() throws PersonNotFoundException, PersonExistsException {
     Person person = new Person(1, "John", "John's City");
     when(repository.save(person)).thenReturn(person);
 
     Person actual = service.createPerson(modelMapper.map(person, PersonDto.class));
 
-    Assertions.assertNotNull(actual, "Expected does not equals actual");
-    Assertions.assertEquals("John", actual.getName(), "Expected equals actual");
+    assertNotNull(actual, "Expected does not equals actual");
+    assertEquals("John", actual.getName(), "Expected equals actual");
     Mockito.verify(repository, Mockito.times(1)).save(person);
   }
 
   @Test
-  public void getPersons() {
+    void test_create_person_with_existing_id_throws_personExistsException() {
+    PersonDto personDto = new PersonDto(1, "John", "John's City");
+    Person existingPerson = new Person(personDto.getId(), "Jane", "Jane's City");
+    when(repository.findById(personDto.getId())).thenReturn(Optional.of(existingPerson));
+
+    assertThrows(PersonExistsException.class, () -> service.createPerson(personDto));
+  }
+
+  @Test
+  void getPersons() {
     Person john = new Person(1, "John", "John's City");
     Person doe = new Person(2, "Doe", "Doe's City");
     List<PersonDto> expected =
@@ -72,19 +79,27 @@ public class PersonServiceImplTest {
   }
 
   @Test
-  public void getPerson() throws PersonNotFoundException {
+  void getPerson() throws PersonNotFoundException {
     Person john = new Person(1, "John", "John's City");
 
     when(repository.findById(1)).thenReturn(Optional.of(john));
 
     PersonDto actual = service.getPerson(1);
-    Assertions.assertEquals(
+    assertEquals(
         modelMapper.map(john, PersonDto.class), actual, "Expected equals actual");
-    Assertions.assertNotNull(actual, "should not be null");
+    assertNotNull(actual, "should not be null");
   }
 
   @Test
-  public void findByNameAndCity() throws PersonNotFoundException {
+  void testGetPerson_NonExistingPerson_ThrowsPersonNotFoundException() {
+    Integer id = 1;
+    when(repository.findById(id)).thenReturn(Optional.empty());
+
+    assertThrows(PersonNotFoundException.class, () -> service.getPerson(id));
+  }
+
+  @Test
+  void findByNameAndCity() throws PersonNotFoundException {
     Person john = new Person(1, "John", "John's City");
     PersonDto johnDto = modelMapper.map(john, PersonDto.class);
 
@@ -92,25 +107,34 @@ public class PersonServiceImplTest {
         .thenReturn(Optional.ofNullable(john));
 
     PersonDto actual = service.findByNameAndCity("John", "John's City");
-    Assertions.assertNotNull(actual, "should not be null");
-    Assertions.assertEquals(johnDto, actual, "Expected equals actual");
+    assertNotNull(actual, "should not be null");
+    assertEquals(johnDto, actual, "Expected equals actual");
   }
 
   @Test
-  public void updatePerson() throws PersonNotFoundException {
+  void testFindByNameAndCity_PersonNotFound_ThrowsPersonNotFoundException() {
+    String name = "John";
+    String city = "New York";
+    when(repository.findByNameIgnoreCaseAndCityIgnoreCase(name, city)).thenReturn(Optional.empty());
+
+    assertThrows(PersonNotFoundException.class, () -> service.findByNameAndCity(name, city));
+  }
+
+  @Test
+  void updatePerson() throws PersonNotFoundException {
     Person john = new Person(1, "John", "John's City");
-    Person john_ = new Person(1, "John", "John's New City");
-    PersonDto john_Dto = modelMapper.map(john_, PersonDto.class);
+    Person john_update = new Person(1, "John", "John's New City");
+    PersonDto john_Dto = modelMapper.map(john_update, PersonDto.class);
 
     when(repository.findById(1)).thenReturn(Optional.of(john));
-    when(repository.save(john_)).thenReturn(john_);
+    when(repository.save(john_update)).thenReturn(john_update);
 
     service.updatePerson(1, john_Dto);
-    Mockito.verify(repository, Mockito.atLeastOnce()).save(john_);
+    Mockito.verify(repository, Mockito.atLeastOnce()).save(john_update);
   }
 
   @Test
-  public void deletePerson() throws PersonNotFoundException {
+  void deletePerson() throws PersonNotFoundException {
     Person john = new Person(1, "John", "John's City");
 
     repository.save(john);
